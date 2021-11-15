@@ -1,0 +1,43 @@
+
+.custom-form {
+    background-color: rgb(23, 162, 184);
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    box-sizing: border-box;
+    color: #FFFFFF;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    height: auto;
+    line-height: 12px;
+    padding-bottom: 3px;
+    padding-left: 4.8px;
+    padding-right: 4.8px;
+    padding-top: 3px;
+    text-align: center;
+    transition-delay: 0s, 0s, 0s, 0s;
+    transition-duration: 0.15s, 0.15s, 0.15s, 0.15s;
+    transition-property: color, background-color, border-color, box-shadow;
+    transition-timing-function: ease-in-out, ease-in-out, ease-in-out, ease-in-out;
+    vertical-align: baseline;
+    white-space: nowrap;
+    margin: 2px;
+}
+
+.flex-break-line {
+    flex-basis: 100%;
+    height: 0;
+}
+
+.column-form {
+    float: left;
+    width: 50%;
+}
+
+@media screen and (max-width: 800px) {
+    .column-form {
+        width: 100%;
+    }
+}

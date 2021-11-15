@@ -1,0 +1,95 @@
+import React, {Component} from 'react';
+import {FuseUtils} from '@fuse';
+import {matchRoutes} from 'react-router-config';
+import {withRouter} from 'react-router-dom';
+import {connect} from 'react-redux';
+import AppContext from 'app/AppContext';
+import {removeNavigationMenuChildren} from 'app/store/actions/fuse';
+
+class FuseAuthorization extends Component {
+
+  constructor(props, context) {
+    super(props);
+    const {routes} = context;
+    this.state = {
+      accessGranted: true,
+      routes
+    };
+  }
+
+  componentDidMount() {
+    if (!this.props.usuario) {
+      this.props.history.push('/login');
+    }
+    if (!this.state.accessGranted) {
+      this.redirectRoute();
+    }
+    this.props.removeNavigationMenuChildren(
+      'applications',
+      (this.props.usuario && this.props.usuario.roles) || []
+    );
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (!this.props.usuario) {
+      this.props.history.push('/login');
+    }
+    if (!this.state.accessGranted) {
+      this.redirectRoute();
+    }
+    this.props.removeNavigationMenuChildren(
+      'applications',
+      (this.props.usuario && this.props.usuario.roles) || []
+    );
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const {location, userRole} = props;
+    const {pathname} = location;
+    const matched = matchRoutes(state.routes, pathname)[0];
+    return {
+      accessGranted: matched ? FuseUtils.hasPermission(matched.route.auth, userRole) : true
+    };
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextState.accessGranted !== this.state.accessGranted;
+  }
+
+  redirectRoute() {
+    const {location, userRole, history} = this.props;
+    const {pathname, state} = location;
+    const redirectUrl = state && state.redirectUrl ? state.redirectUrl : '/';
+    if (!userRole || userRole.length === 0) {
+      /*User is guest Redirect to Login Page*/
+      history.push({
+        pathname: '/login',
+        state: {redirectUrl: pathname}
+      });
+    } else {
+      /*User is member User must be on unAuthorized page or just logged in
+       Redirect to dashboard or redirectUrl*/
+      history.push({
+        pathname: redirectUrl
+      });
+    }
+  }
+
+  render() {
+    // console.info('Fuse Authorization rendered', accessGranted);
+    return this.state.accessGranted ?
+      <React.Fragment>{this.props.children}</React.Fragment> : null;
+  }
+}
+
+function mapStateToProps({auth}) {
+  return {
+    userRole: auth.user.role
+  };
+}
+
+FuseAuthorization.contextType = AppContext;
+
+export default withRouter(connect(mapStateToProps, {
+  removeNavigationMenuChildren
+})(FuseAuthorization));
